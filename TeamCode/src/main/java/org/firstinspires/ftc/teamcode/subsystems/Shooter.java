@@ -4,12 +4,15 @@ import dev.nextftc.hardware.RobotController;
 import dev.nextftc.hardware.actuators.NextMotor;
 import dev.nextftc.hardware.actuators.NextServo;
 
+
 public class Shooter {
+    // Maximum change in motor power per second (0.5 = 50% per second).
     private static final double RAMP_RATE_PER_SECOND = 0.5;
     private static Shooter instance;
-
+    // Hardware devices controlled by this subsystem.
     private final NextMotor motor;
     private final NextServo hood;
+    // Current commanded hood position, initially centered at 0.5.
     private double hoodPosition = 0.5;
 
     private double targetPower = 0.0;
