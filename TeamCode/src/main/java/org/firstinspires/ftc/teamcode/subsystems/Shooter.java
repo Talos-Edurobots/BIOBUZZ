@@ -1,51 +1,74 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import com.pedropathing.ivy.Command;
-
 import dev.nextftc.hardware.RobotController;
 import dev.nextftc.hardware.actuators.NextMotor;
 import dev.nextftc.hardware.actuators.NextServo;
-import dev.nextftc.robot.Mechanism;
 
-public class Shooter implements Mechanism {
-    private final NextMotor motor = new NextMotor(RobotController.expansionHub(), 2);
-    private final NextServo hood = new NextServo(RobotController.expansionHub(), 1);
-    private double hoodPos = .5;
+public class Shooter {
+    private static final double RAMP_RATE_PER_SECOND = 0.5;
+    private static Shooter instance;
+
+    private final NextMotor motor;
+    private final NextServo hood;
+    private double hoodPosition = 0.5;
 
     private double targetPower = 0.0;
     private double currentPower = 0.0;
-    private long lastUpdateNanos = System.nanoTime();
+    private long lastUpdateNanos;
+    private boolean running = false;
 
-    /**
-     * Creates a command that continuously ramps toward the current target power
-     * and holds it there. Rate is measured in power units per second.
-     */
-    public Command runAtTarget(double ratePerSecond) {
-        if (ratePerSecond <= 0.0) {
-            throw new IllegalArgumentException("ratePerSecond must be greater than zero");
+    public static synchronized Shooter get() {
+        if (instance == null) {
+            instance = new Shooter();
+        }
+        return instance;
+    }
+
+    public static synchronized void setInstance(Shooter shooter) {
+        instance = shooter;
+    }
+
+    public Shooter() {
+        this(new NextMotor(RobotController.expansionHub(), 2), new NextServo(RobotController.expansionHub(), 1));
+    }
+
+    public Shooter(NextMotor motor, NextServo hood) {
+        this.motor = motor;
+        this.hood = hood;
+    }
+
+    /** Starts ramping from zero toward the selected target power. */
+    public void start() {
+        running = true;
+        currentPower = 0.0;
+        lastUpdateNanos = System.nanoTime();
+        motor.setThrottle(0.0);
+    }
+
+    /** Advances the power ramp once per OpMode loop. */
+    public void update() {
+        if (!running) {
+            return;
         }
 
-        return infinite(() -> {
-            long now = System.nanoTime();
-            double elapsedSeconds = (now - lastUpdateNanos) / 1_000_000_000.0;
-            lastUpdateNanos = now;
+        long now = System.nanoTime();
+        double elapsedSeconds = (now - lastUpdateNanos) / 1_000_000_000.0;
+        lastUpdateNanos = now;
 
-            double target = targetPower;
-            double maxChange = ratePerSecond * elapsedSeconds;
-            if (currentPower < target) {
-                currentPower = Math.min(target, currentPower + maxChange);
-            } else {
-                currentPower = Math.max(target, currentPower - maxChange);
-            }
-
-            motor.setThrottle(currentPower);
-        });
+        double maxChange = RAMP_RATE_PER_SECOND * elapsedSeconds;
+        if (currentPower < targetPower) {
+            currentPower = Math.min(targetPower, currentPower + maxChange);
+        } else {
+            currentPower = Math.max(targetPower, currentPower - maxChange);
+        }
+        motor.setThrottle(currentPower);
     }
 
     /** Adjusts the ramp target; positive values increase it, negative values decrease it. */
     public void adjustTargetPower(double change) {
         targetPower = clampPower(targetPower + change);
     }
+
     public void setTargetPower(double power) {
         targetPower = clampPower(power);
     }
@@ -59,23 +82,24 @@ public class Shooter implements Mechanism {
         return currentPower;
     }
 
-    /** Stops the shooter immediately while preserving its selected target power. */
-    public Command stop() {
-        return instant(() -> {
-            currentPower = 0.0;
-            lastUpdateNanos = System.nanoTime();
-            motor.setThrottle(0.0);
-        });
+    /** Stops immediately while preserving the selected target power. */
+    public void stop() {
+        running = false;
+        currentPower = 0.0;
+        motor.setThrottle(0.0);
+    }
+    public NextMotor hardware() {
+        return motor;
+    }
+    public boolean isRunning() {
+        return running;
     }
 
-
-    @Override
-    public Command getDefaultCommand() {
-        return infinite(() -> {
-            currentPower = 0.0;
-            lastUpdateNanos = System.nanoTime();
-            motor.setThrottle(0.0);
-        });
+    /** Enables the hood servo and adjusts its position within [0.5, 1.0]. */
+    public void changeHoodPosition(double change) {
+        hood.enable();
+        hoodPosition = Math.max(0.5, Math.min(1.0, hoodPosition + change));
+        hood.setPosition(hoodPosition);
     }
     public Command changeHoodPosition(double position) {
         return instant(() -> {

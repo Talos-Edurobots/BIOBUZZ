@@ -1,53 +1,55 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.pedropathing.ivy.commands.Commands;
-import dev.nextftc.robot.opmode.NextOpMode;
-import dev.nextftc.robot.opmode.NextTeleop;
-import dev.nextftc.robot.triggers.CommandGamepad;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import dev.nextftc.hardware.actuators.NextMotor;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 
-@NextTeleop(name = "Main TeleOp")
-public class MainTeleOp extends NextOpMode {
-    private final Robot robot;
+@TeleOp(name = "Main TeleOp")
+public class MainTeleOp extends OpMode {
+    private Robot robot;
 
-    public MainTeleOp(Robot robot) {
-        super(robot);
-        this.robot = robot;
+    @Override
+    public void init() {
+        robot = new Robot();
     }
 
     @Override
     public void start() {
-        robot.drivetrain.startDrive(gamepad1);
-
-        CommandGamepad driver = new CommandGamepad(gamepad1);
-        driver.a().onTrue(robot.intake.intake(1));
-        driver.b().onTrue(robot.intake.stop());
-        driver.y().onTrue(robot.intake.outtake(1));
-
-        driver.x().toggleOnTrue(robot.shooter.runAtTarget(0.5));
-        driver.dpadUp().onTrue(
-                Commands.instant(() -> robot.shooter.adjustTargetPower(0.1))
-        );
-        driver.dpadDown().onTrue(
-                Commands.instant(() -> robot.shooter.adjustTargetPower(-0.1))
-        );
-
-        driver.dpadLeft().onTrue(
-                Commands.instant(() -> robot.turret.adjustPosition(-0.1))
-        );
-        driver.dpadRight().onTrue(
-                Commands.instant(() -> robot.turret.adjustPosition(0.1))
-        );
-        driver.start().onTrue(robot.turret.activate());
-        driver.back().onTrue(robot.turret.deactivate());
-
-        driver.leftBumper().onTrue(robot.shooter.changeHoodPosition(-0.1));
-        driver.rightBumper().onTrue(robot.shooter.changeHoodPosition(0.1));
+        robot.turret.activate();
     }
 
     @Override
-    public void periodic() {
-        telemetry.addLine("Controls: A intake | B stop intake | Y outtake | X shooter on/off | D-pad Up/Down shooter target | D-pad Left/Right turret position | Start/Back turret PWM on/off");
+    public void loop() {
+        robot.drivetrain.drive(gamepad1);
+
+        if (gamepad1.aWasPressed()) robot.intake.intake(1.0);
+        if (gamepad1.yWasPressed()) robot.intake.outtake(1.0);
+        if (gamepad1.bWasPressed()) robot.intake.stop();
+
+        if (gamepad1.xWasPressed()) {
+            if (robot.shooter.isRunning()) {
+                robot.shooter.stop();
+            } else {
+                robot.shooter.start();
+            }
+        }
+        if (gamepad1.dpadUpWasPressed()) robot.shooter.adjustTargetPower(0.1);
+        if (gamepad1.dpadDownWasPressed()) robot.shooter.adjustTargetPower(-0.1);
+
+        if (gamepad1.dpadLeftWasPressed()) robot.turret.adjustPosition(-0.1);
+        if (gamepad1.dpadRightWasPressed()) robot.turret.adjustPosition(0.1);
+        if (gamepad1.startWasPressed()) robot.turret.activate();
+        if (gamepad1.backWasPressed()) robot.turret.deactivate();
+
+        if (gamepad1.leftBumperWasPressed()) robot.shooter.changeHoodPosition(-0.1);
+        if (gamepad1.rightBumperWasPressed()) robot.shooter.changeHoodPosition(0.1);
+
+        robot.shooter.update();
+        // NextMotor applies the requested powers when its motor loop is polled.
+        NextMotor.Companion.getMotorEventLoop().poll();
+
+        telemetry.addLine("Controls: A intake | B stop intake | Y outtake | X shooter on/off | D-pad Up/Down shooter target | D-pad Left/Right turret position | Start/Back turret PWM on/off | Bumpers hood");
         telemetry.addData("Shooter target power", "%.2f", robot.shooter.getTargetPower());
         telemetry.addData("Shooter applied power", "%.2f", robot.shooter.getAppliedPower());
         telemetry.addData("Turret commanded position", "%.2f", robot.turret.getTargetPosition());
@@ -55,5 +57,16 @@ public class MainTeleOp extends NextOpMode {
         telemetry.addData("Intake power", "%.2f", robot.intake.getCurrentPower());
         telemetry.addData("Intake current", "%.2f A",
                 robot.intake.hardware().getCurrent().getMagnitude());
+        telemetry.addData("Shooter current", "%.2f A",
+                robot.shooter.hardware().getCurrent().getMagnitude());
+        telemetry.update();
+    }
+
+    @Override
+    public void stop() {
+        robot.drivetrain.stop();
+        robot.intake.stop();
+        robot.shooter.stop();
+        NextMotor.Companion.getMotorEventLoop().poll();
     }
 }

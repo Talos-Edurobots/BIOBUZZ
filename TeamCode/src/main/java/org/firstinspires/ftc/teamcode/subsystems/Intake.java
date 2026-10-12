@@ -4,47 +4,61 @@ import com.pedropathing.ivy.Command;
 
 import dev.nextftc.hardware.RobotController;
 import dev.nextftc.hardware.actuators.NextMotor;
-import dev.nextftc.robot.Mechanism;
 
-public class Intake implements Mechanism {
-    private final NextMotor motor = new NextMotor(RobotController.controlHub(), 0);
+public class Intake {
+    private static Intake instance;
+
+    private final NextMotor motor;
     private double currentPower = 0.0;
 
-    /**
-     * Sets the intake power once. The motor keeps that power until another
-     * command changes it or the OpMode ends.
-     */
-    public Command intake(double power) {
-        double safePower = clampMagnitude(power);
-        return instant(() -> {
-            currentPower = safePower;
-            motor.setThrottle(currentPower);
-        });
+    public static synchronized Intake get() {
+        if (instance == null) {
+            instance = new Intake();
+        }
+        return instance;
     }
 
-    /** Sets reverse power once; it remains set until another command changes it. */
-    public Command outtake(double power) {
-        double safePower = clampMagnitude(power);
-        return instant(() -> {
-            currentPower = -safePower;
-            motor.setThrottle(currentPower);
-        });
+    public static synchronized void setInstance(Intake intake) {
+        instance = intake;
+    }
+
+    public Intake() {
+        this(new NextMotor(RobotController.controlHub(), 0));
+    }
+
+    public Intake(NextMotor motor) {
+        this.motor = motor;
+    }
+
+    /** Sets intake power until another action changes it. */
+    public void intake(double power) {
+        setPower(clampMagnitude(power));
     }
     public NextMotor hardware() {
         return motor;
     }
 
-    /** Stops the motor once this command runs. */
-    public Command stop() {
-        return instant(() -> {
-            currentPower = 0.0;
-            motor.setThrottle(currentPower);
-        });
+    /** Sets reverse power until another action changes it. */
+    public void outtake(double power) {
+        setPower(-clampMagnitude(power));
+    }
+
+    public void stop() {
+        setPower(0.0);
     }
 
     /** Returns the last power value commanded to the motor. */
     public double getCurrentPower() {
         return currentPower;
+    }
+
+    public NextMotor hardware() {
+        return motor;
+    }
+
+    private void setPower(double power) {
+        currentPower = power;
+        motor.setThrottle(power);
     }
 
     private double clampMagnitude(double power) {

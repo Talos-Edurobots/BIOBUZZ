@@ -22,9 +22,18 @@ android {
     packagingOptions {
         jniLibs.useLegacyPackaging true
     }
+
+    testOptions {
+        unitTests.all {
+            jvmArgs '-Dnet.bytebuddy.experimental=true'
+        }
+    }
 }
 
 dependencies {
     implementation project(':FtcRobotController')
     implementation 'com.google.protobuf:protobuf-javalite:4.36.2'
+
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.mockito:mockito-core:5.11.0'
 }
