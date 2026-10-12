@@ -40,6 +40,9 @@ public class MainTeleOp extends NextOpMode {
         );
         driver.start().onTrue(robot.turret.activate());
         driver.back().onTrue(robot.turret.deactivate());
+
+        driver.leftBumper().onTrue(robot.shooter.changeHoodPosition(-0.1));
+        driver.rightBumper().onTrue(robot.shooter.changeHoodPosition(0.1));
     }
 
     @Override
@@ -50,5 +53,7 @@ public class MainTeleOp extends NextOpMode {
         telemetry.addData("Turret commanded position", "%.2f", robot.turret.getTargetPosition());
         telemetry.addData("Turret PWM active", robot.turret.isActive());
         telemetry.addData("Intake power", "%.2f", robot.intake.getCurrentPower());
+        telemetry.addData("Intake current", "%.2f A",
+                robot.intake.hardware().getCurrent().getMagnitude());
     }
 }

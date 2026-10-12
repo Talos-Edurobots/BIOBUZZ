@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.pedropathing.ivy.Command;
+
+import dev.nextftc.hardware.RobotController;
 import dev.nextftc.hardware.actuators.NextMotor;
 import dev.nextftc.robot.Mechanism;
 
 public class Intake implements Mechanism {
-    private final NextMotor motor = new NextMotor("intake");
+    private final NextMotor motor = new NextMotor(RobotController.controlHub(), 0);
     private double currentPower = 0.0;
 
     /**
@@ -27,6 +29,9 @@ public class Intake implements Mechanism {
             currentPower = -safePower;
             motor.setThrottle(currentPower);
         });
+    }
+    public NextMotor hardware() {
+        return motor;
     }
 
     /** Stops the motor once this command runs. */
