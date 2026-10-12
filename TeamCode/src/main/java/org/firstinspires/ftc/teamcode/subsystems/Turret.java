@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.pedropathing.ivy.Command;
+
+import dev.nextftc.hardware.RobotController;
 import dev.nextftc.hardware.actuators.NextServo;
 import dev.nextftc.robot.Mechanism;
 
 public class Turret implements Mechanism {
-    private final NextServo servo = new NextServo("turret");
+    private final NextServo servo = new NextServo(RobotController.controlHub(), 1);
     private double targetPosition = 0.5;
     private boolean active = true;
 

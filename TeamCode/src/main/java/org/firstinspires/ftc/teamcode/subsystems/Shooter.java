@@ -1,11 +1,16 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.pedropathing.ivy.Command;
+
+import dev.nextftc.hardware.RobotController;
 import dev.nextftc.hardware.actuators.NextMotor;
+import dev.nextftc.hardware.actuators.NextServo;
 import dev.nextftc.robot.Mechanism;
 
 public class Shooter implements Mechanism {
-    private final NextMotor motor = new NextMotor("shooter");
+    private final NextMotor motor = new NextMotor(RobotController.expansionHub(), 2);
+    private final NextServo hood = new NextServo(RobotController.expansionHub(), 1);
+    private double hoodPos = .5;
 
     private double targetPower = 0.0;
     private double currentPower = 0.0;
@@ -70,6 +75,16 @@ public class Shooter implements Mechanism {
             currentPower = 0.0;
             lastUpdateNanos = System.nanoTime();
             motor.setThrottle(0.0);
+        });
+    }
+    public Command changeHoodPosition(double position) {
+        return instant(() -> {
+            hood.enable();
+            hoodPos += position;
+            hoodPos = Math.max(0.5, Math.min(1.0, hoodPos));
+
+            hoodPos = clampPower(hoodPos);
+            hood.setPosition(hoodPos);
         });
     }
 
