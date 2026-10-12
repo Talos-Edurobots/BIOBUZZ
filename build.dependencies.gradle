@@ -18,7 +18,9 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'dev.nextftc.v2:control:0.2.1'
     implementation 'dev.nextftc.v2:hardware:0.2.1'
-    implementation 'dev.nextftc.v2:robot:0.2.1'
+    // NextFTC hardware exposes Sinister app-hook types in its public API.
+    // Its runtime-only Sloth dependency must also be on TeamCode's compile classpath.
+    implementation 'dev.frozenmilk.sinister:Sloth:0.3.2'
     implementation 'com.pedropathing:revhub:3.0.1'
     implementation 'com.pedropathing:tuning:1.0.1'
 }
