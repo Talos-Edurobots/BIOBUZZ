@@ -101,16 +101,6 @@ public class Shooter {
         hoodPosition = Math.max(0.5, Math.min(1.0, hoodPosition + change));
         hood.setPosition(hoodPosition);
     }
-    public Command changeHoodPosition(double position) {
-        return instant(() -> {
-            hood.enable();
-            hoodPos += position;
-            hoodPos = Math.max(0.5, Math.min(1.0, hoodPos));
-
-            hoodPos = clampPower(hoodPos);
-            hood.setPosition(hoodPos);
-        });
-    }
 
     private double clampPower(double power) {
         return Math.max(0.0, Math.min(1.0, power));
