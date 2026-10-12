@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.pedropathing.ivy.Command;
+
 import dev.nextftc.hardware.RobotController;
 import dev.nextftc.hardware.actuators.NextMotor;
 
@@ -31,6 +33,9 @@ public class Intake {
     /** Sets intake power until another action changes it. */
     public void intake(double power) {
         setPower(clampMagnitude(power));
+    }
+    public NextMotor hardware() {
+        return motor;
     }
 
     /** Sets reverse power until another action changes it. */
