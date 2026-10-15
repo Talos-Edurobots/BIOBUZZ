@@ -23,9 +23,19 @@ public class MainTeleOp extends OpMode {
     public void loop() {
         robot.drivetrain.drive(gamepad1);
 
-        if (gamepad1.aWasPressed()) robot.intake.intake(1.0);
-        if (gamepad1.yWasPressed()) robot.intake.outtake(1.0);
-        if (gamepad1.bWasPressed()) robot.intake.stop();
+        if (gamepad1.aWasPressed()) {
+            robot.intake.intake(1.0);
+            robot.crWheel.setPower(1.0);
+        }
+        if (gamepad1.yWasPressed()) {
+            robot.intake.outtake(1.0);
+            robot.crWheel.setPower(-1.0);
+        }
+        if (gamepad1.bWasPressed()) {
+            robot.intake.stop();
+            robot.crWheel.stop();
+        }
+        if (gamepad1.rightTriggerWasPressed()) robot.gate.toggle();
 
         if (gamepad1.xWasPressed()) {
             if (robot.shooter.isRunning()) {
@@ -49,12 +59,13 @@ public class MainTeleOp extends OpMode {
         // NextMotor applies the requested powers when its motor loop is polled.
         NextMotor.Companion.getMotorEventLoop().poll();
 
-        telemetry.addLine("Controls: A intake | B stop intake | Y outtake | X shooter on/off | D-pad Up/Down shooter target | D-pad Left/Right turret position | Start/Back turret PWM on/off | Bumpers hood");
+        telemetry.addLine("Controls: A intake + wheel | B stop intake + wheel | Y outtake + wheel | Right trigger gate | X shooter on/off | D-pad Up/Down shooter target | D-pad Left/Right turret position | Start/Back turret PWM on/off | Bumpers hood");
         telemetry.addData("Shooter target power", "%.2f", robot.shooter.getTargetPower());
         telemetry.addData("Shooter applied power", "%.2f", robot.shooter.getAppliedPower());
         telemetry.addData("Turret commanded position", "%.2f", robot.turret.getTargetPosition());
         telemetry.addData("Turret PWM active", robot.turret.isActive());
         telemetry.addData("Intake power", "%.2f", robot.intake.getCurrentPower());
+        telemetry.addData("Gate state", robot.gate.getState());
         telemetry.addData("Intake current", "%.2f A",
                 robot.intake.hardware().getCurrent().getMagnitude());
         telemetry.addData("Shooter current", "%.2f A",
@@ -66,6 +77,7 @@ public class MainTeleOp extends OpMode {
     public void stop() {
         robot.drivetrain.stop();
         robot.intake.stop();
+        robot.crWheel.stop();
         robot.shooter.stop();
         NextMotor.Companion.getMotorEventLoop().poll();
     }
