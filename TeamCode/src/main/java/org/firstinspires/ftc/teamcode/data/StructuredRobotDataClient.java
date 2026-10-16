@@ -11,6 +11,10 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import dev.nextftc.hardware.actuators.NextMotor;
+
+import java.lang.reflect.Field;
+
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.data.protocol.Channel;
 import org.firstinspires.ftc.teamcode.data.protocol.ChannelRole;
@@ -151,6 +155,55 @@ public final class StructuredRobotDataClient implements Closeable {
                 "electricalPower", "W", "float64", "measured", 50);
         motors.add(new MotorBinding(deviceId, motor, commandedPower));
         return this;
+    }
+
+    /**
+     * Registers a NextMotor and automatically adds its common diagnostic signals.
+     * The motor's current power is used for both commandedPower and appliedPower.
+     */
+    public synchronized StructuredRobotDataClient addMotor(String deviceId, String label, NextMotor motor) {
+        if (motor == null) throw new IllegalArgumentException("motor must not be null");
+        return addMotor(deviceId, label, getDcMotorEx(motor), motor::getThrottle);
+    }
+
+    /**
+     * Registers a NextMotor and captures the supplied requested power separately
+     * from the motor's measured/applied power.
+     */
+    public synchronized StructuredRobotDataClient addMotor(
+            String deviceId, String label, NextMotor motor, DoubleSupplier commandedPower) {
+        if (motor == null) throw new IllegalArgumentException("motor must not be null");
+        return addMotor(deviceId, label, getDcMotorEx(motor), commandedPower);
+    }
+
+    /**
+     * Helper to extract the underlying DcMotorEx from a NextMotor wrapper via reflection
+     * so that motor telemetry schema and channel types remain 100% identical.
+     */
+    public static DcMotorEx getDcMotorEx(NextMotor nextMotor) {
+        if (nextMotor == null) return null;
+        try {
+            Field lazyMotorField = NextMotor.class.getDeclaredField("lazyMotor");
+            lazyMotorField.setAccessible(true);
+            Object lazyMotor = lazyMotorField.get(nextMotor);
+            if (lazyMotor == null) {
+                nextMotor.getCurrent();
+                lazyMotor = lazyMotorField.get(nextMotor);
+            }
+            if (lazyMotor == null) {
+                throw new IllegalStateException("lazyMotor is null on NextMotor");
+            }
+            Field valueField = lazyMotor.getClass().getDeclaredField("value");
+            valueField.setAccessible(true);
+            Object value = valueField.get(lazyMotor);
+            if (value == null) {
+                nextMotor.getCurrent();
+                value = valueField.get(lazyMotor);
+            }
+            return (DcMotorEx) value;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to extract DcMotorEx from NextMotor", e);
+        }
     }
 
     /**

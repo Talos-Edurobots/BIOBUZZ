@@ -4,7 +4,7 @@ import dev.nextftc.hardware.RobotController;
 import dev.nextftc.hardware.actuators.NextCRServo;
 
 public class CRWheel {
-    private static final int SERVO_PORT = 4;
+    private static final int SERVO_PORT = 5;
     private static CRWheel instance;
 
     private final NextCRServo servo;
@@ -17,7 +17,7 @@ public class CRWheel {
     }
 
     public CRWheel() {
-        this(new NextCRServo(RobotController.controlHub(), SERVO_PORT));
+        this(new NextCRServo(RobotController.expansionHub(), SERVO_PORT));
     }
 
     public CRWheel(NextCRServo servo) {

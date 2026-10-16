@@ -2,16 +2,32 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import dev.nextftc.hardware.actuators.NextMotor;
+
+import org.firstinspires.ftc.teamcode.data.StructuredRobotDataClient;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 
 @TeleOp(name = "Main TeleOp")
 public class MainTeleOp extends OpMode {
     private Robot robot;
+    private StructuredRobotDataClient client;
+    private final ElapsedTime runtime = new ElapsedTime();
 
     @Override
     public void init() {
         robot = new Robot();
+        client = new StructuredRobotDataClient("Main TeleOp")
+                .addRuntime(runtime)
+                .addGamepads(gamepad1, gamepad2)
+                .addMotor("intake", "Intake Motor", robot.intake.hardware(), robot.intake::getCurrentPower)
+                .addMotor("shooter", "Shooter Motor", robot.shooter.hardware(), robot.shooter::getAppliedPower)
+                .addMotor("drivetrain.frontLeft", "Front Left Motor", robot.drivetrain.frontLeft)
+                .addMotor("drivetrain.frontRight", "Front Right Motor", robot.drivetrain.frontRight)
+                .addMotor("drivetrain.backLeft", "Back Left Motor", robot.drivetrain.backLeft)
+                .addMotor("drivetrain.backRight", "Back Right Motor", robot.drivetrain.backRight);
+        client.start();
     }
 
     @Override
@@ -71,6 +87,8 @@ public class MainTeleOp extends OpMode {
         telemetry.addData("Shooter current", "%.2f A",
                 robot.shooter.hardware().getCurrent().getMagnitude());
         telemetry.update();
+
+        client.publishLoop();
     }
 
     @Override
@@ -80,5 +98,8 @@ public class MainTeleOp extends OpMode {
         robot.crWheel.stop();
         robot.shooter.stop();
         NextMotor.Companion.getMotorEventLoop().poll();
+        if (client != null) {
+            client.close();
+        }
     }
 }

@@ -7,8 +7,8 @@ public class Gate {
     public enum State { OPEN, CLOSED }
 
     private static final int SERVO_PORT = 2;
-    private static final double OPEN_POSITION = 0.6;
-    private static final double CLOSED_POSITION = 0.4;
+    private static final double OPEN_POSITION = 0;
+    private static final double CLOSED_POSITION = 1;
     private static Gate instance;
 
     private final NextServo servo;
@@ -24,7 +24,7 @@ public class Gate {
     }
 
     public Gate() {
-        this(new NextServo(RobotController.controlHub(), SERVO_PORT));
+        this(new NextServo(RobotController.expansionHub(), SERVO_PORT));
     }
 
     public Gate(NextServo servo) {
