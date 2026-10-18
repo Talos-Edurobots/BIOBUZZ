@@ -3,10 +3,9 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
+import io.github.manosfps1pt.ftclogger.StructuredRobotDataClient;
 import dev.nextftc.hardware.actuators.NextMotor;
 
-import org.firstinspires.ftc.teamcode.data.StructuredRobotDataClient;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 
 @TeleOp(name = "Main TeleOp")

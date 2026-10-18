@@ -25,5 +25,6 @@ dependencies {
     implementation 'dev.frozenmilk.sinister:Sloth:0.3.2'
     implementation 'com.pedropathing:revhub:3.0.1'
     implementation 'com.pedropathing:tuning:1.0.1'
+    implementation 'com.github.ManosFps1pt:ftclogger:v0.2.0'
 }
 
