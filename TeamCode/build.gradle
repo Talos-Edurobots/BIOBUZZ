@@ -35,8 +35,10 @@ android {
 
 dependencies {
     implementation project(':FtcRobotController')
-    implementation 'com.google.protobuf:protobuf-javalite:4.36.2'
+    def ftcLoggerVersion = findProperty('ftcloggerVersion') ?: '1.0.0-rc.1-laptop.1'
+    implementation "io.github.manosfps1pt:ftclogger-nextftc:${ftcLoggerVersion}"
 
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.mockito:mockito-core:5.11.0'
 }
+

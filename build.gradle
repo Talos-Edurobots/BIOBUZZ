@@ -6,6 +6,7 @@
 
 buildscript {
     repositories {
+        mavenLocal()
         mavenCentral()
         google()
     }
@@ -21,6 +22,7 @@ plugins {
 // google() repository beginning with version 3.2 of the Android Gradle Plugin
 allprojects {
     repositories {
+        mavenLocal()
         mavenCentral()
         maven { url 'https://jitpack.io' }
         google()

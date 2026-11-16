@@ -7,8 +7,8 @@ public class Flower {
     public enum State { ACTIVE, INACTIVE }
 
     private static final int SERVO_PORT = 3;
-    private static final double ACTIVE_POSITION = 0.6;
-    private static final double INACTIVE_POSITION = 0.4;
+    private static final double ACTIVE_POSITION = 1;
+    private static final double INACTIVE_POSITION = 0.5;
     private static Flower instance;
 
     private final NextServo servo;

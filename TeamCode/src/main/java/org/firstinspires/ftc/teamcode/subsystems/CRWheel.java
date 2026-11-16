@@ -17,7 +17,11 @@ public class CRWheel {
     }
 
     public CRWheel() {
-        this(new NextCRServo(RobotController.expansionHub(), SERVO_PORT));
+        this(0.01);
+    }
+
+    public CRWheel(double powerCacheTolerance) {
+        this(new NextCRServo(RobotController.expansionHub(), SERVO_PORT, powerCacheTolerance));
     }
 
     public CRWheel(NextCRServo servo) {
@@ -27,6 +31,7 @@ public class CRWheel {
 
     public void setPower(double power) {
         if (!Double.isFinite(power)) throw new IllegalArgumentException("power must be finite");
+        servo.enable();
         servo.setPower(Math.max(-1.0, Math.min(1.0, power)));
     }
 

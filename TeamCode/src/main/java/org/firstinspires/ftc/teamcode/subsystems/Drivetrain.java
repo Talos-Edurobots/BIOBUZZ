@@ -42,14 +42,17 @@ public class Drivetrain {
         this.frontRight = frontRight;
         this.backLeft = backLeft;
         this.backRight = backRight;
+
+        this.frontLeft.setDirection(NextMotor.Direction.REVERSE);
+        this.backLeft.setDirection(NextMotor.Direction.REVERSE);
     }
 
     /** Reads the sticks and sets all four motor powers once per OpMode loop. */
     public void drive(Gamepad gamepad) {
         MecanumWheelPowers powers = kinematics.calculate(new DriveInput(
-                gamepad.right_stick_x,
+                gamepad.left_stick_y,
                 -gamepad.left_stick_x,
-                -gamepad.left_stick_y
+                -gamepad.right_stick_x
         ));
         frontLeft.setThrottle(powers.getFrontLeft());
         frontRight.setThrottle(powers.getFrontRight());

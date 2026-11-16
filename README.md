@@ -1782,3 +1782,24 @@ Changes include:
  * The API for the Legacy Module and Core Device Interface Module have been updated.
    - Support for encoders with the Legacy Module is now working.
  * The hardware loop has been updated for better performance.
+
+## Local ftclogger development
+
+From the ftclogger checkout, install its tested artifacts into Maven Local:
+
+```powershell
+.\scripts\install-local.bat
+```
+
+BIOBUZZ defaults to `ftclogger-nextftc:1.0.0-rc.1`. If you replace artifacts at the same version, refresh Gradle's cache:
+
+```powershell
+.\gradlew.bat --refresh-dependencies :TeamCode:assembleDebug :TeamCode:testDebugUnitTest
+```
+
+To install and use another version, pass it to the script and BIOBUZZ:
+
+```powershell
+.\scripts\install-local.bat 1.0.0-local.2
+.\gradlew.bat --refresh-dependencies -PftcloggerVersion=1.0.0-local.2 :TeamCode:assembleDebug
+```

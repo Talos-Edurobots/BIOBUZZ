@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import dev.nextftc.hardware.RobotController;
 import dev.nextftc.hardware.actuators.NextMotor;
+import dev.nextftc.units.Units;
 
 public class Intake {
     private static Intake instance;
@@ -21,7 +22,11 @@ public class Intake {
     }
 
     public Intake() {
-        this(new NextMotor(RobotController.controlHub(), 0));
+        this(0.01);
+    }
+
+    public Intake(double motorCacheTolerance) {
+        this(new NextMotor(RobotController.controlHub(), 0, Units.getRadians(1.0), motorCacheTolerance));
     }
 
     public Intake(NextMotor motor) {

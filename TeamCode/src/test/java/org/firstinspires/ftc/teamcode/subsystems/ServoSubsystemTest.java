@@ -22,7 +22,7 @@ public class ServoSubsystemTest {
 
         gate.activate();
         assertEquals(Gate.State.OPEN, gate.getState());
-        verify(servo).setPosition(0.6);
+        verify(servo).setPosition(0.0);
 
         gate.disablePwm();
         gate.setPosition(0.8);
@@ -38,7 +38,7 @@ public class ServoSubsystemTest {
         verify(servo).setPosition(1.0);
         gate.toggle();
         assertEquals(Gate.State.CLOSED, gate.getState());
-        verify(servo).setPosition(0.4);
+        verify(servo, org.mockito.Mockito.times(2)).setPosition(1.0);
     }
 
     @Test
@@ -51,11 +51,11 @@ public class ServoSubsystemTest {
 
         flower.activate();
         assertEquals(Flower.State.ACTIVE, flower.getState());
-        verify(servo).setPosition(0.6);
+        verify(servo).setPosition(1.0);
 
         flower.toggle();
         assertEquals(Flower.State.INACTIVE, flower.getState());
-        verify(servo).setPosition(0.4);
+        verify(servo).setPosition(0.5);
 
         flower.changePosition(-1.0);
         assertEquals(Flower.State.INACTIVE, flower.getState());

@@ -8,9 +8,8 @@ public class Gate {
 
     private static final int SERVO_PORT = 2;
     private static final double OPEN_POSITION = 0;
-    private static final double CLOSED_POSITION = 1;
+    private static final double CLOSED_POSITION = .4;
     private static Gate instance;
-
     private final NextServo servo;
     private State state = State.CLOSED;
     private double targetPosition = CLOSED_POSITION;
